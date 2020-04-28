@@ -821,7 +821,7 @@ tub.adonis # 0.004 **
 DWDS.fit # 0.001 ***
 
 
-# compare envfit results PERMANOVA
+# compare envfit results ANOSIM
 type.ano <- anosim(indic_data, Sample_info$Sample_type, distance = "bray", perm = 9999)
 type.ano # 0.0275
 
