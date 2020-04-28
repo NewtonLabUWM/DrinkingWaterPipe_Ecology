@@ -1,7 +1,6 @@
-
 ##########################################
 ### Analysis for Kimbell et al, 2020
-### Lou LaMartina, finalized April 8, 2020
+### Lou LaMartina, finalized April 28, 2020
 ##########################################
 
 
@@ -18,10 +17,11 @@ library(reshape2)
 library(ape)
 library(ggrepel)
 library(indicspecies)
+library(ggbeeswarm)
 
 
 # load phyloseq object (see DWDS_dada2.R from 3/26/20)
-DWDS_object <- readRDS("./RData/DWDS_phyloseq_object.RData")
+DWDS_object <- readRDS("./RData/Kimbell_phyloseq_object.RData")
 
 
 # convert to relative abundance
@@ -37,7 +37,7 @@ DWDS_relabun <- DWDS_relabun[, colSums(DWDS_relabun) > 0]
 
 
 # load sample info
-Sample_info <- read.csv("./RData/DWDS_sample_info.csv")
+Sample_info <- read.csv("./RData/Kimbell_sample_info.csv")
 rownames(Sample_info) <- Sample_info$Sample_name
 
 
@@ -183,16 +183,13 @@ pcoa
 ### combine taxa to lowest classification ###
 #############################################
 
-
 # get ASVs that were not classified to kingdom level
 NAkingdom <- subset(Taxonomy_all, is.na(Taxonomy_all$Kingdom) == TRUE)
-
 
 
 # get ASVs that were not classified to phylum level
 NAphylum <- subset(Taxonomy_all, is.na(Taxonomy_all$Phylum) == TRUE & 
                      ! Taxonomy_all$ASV %in% NAkingdom$ASV)
-
 
 
 # get ASVs that were not classified to class level
@@ -201,13 +198,11 @@ NAclass <- subset(Taxonomy_all, is.na(Taxonomy_all$Class) == TRUE &
                     ! Taxonomy_all$ASV %in% NAphylum$ASV)
 
 
-
 # get ASVs that were not classified to order level
 NAorder <- subset(Taxonomy_all, is.na(Taxonomy_all$Order) == TRUE & 
                     ! Taxonomy_all$ASV %in% NAkingdom$ASV &
                     ! Taxonomy_all$ASV %in% NAphylum$ASV &
                     ! Taxonomy_all$ASV %in% NAclass$ASV)
-
 
 
 # get ASVs that were not classified to family level
@@ -218,7 +213,6 @@ NAfamily <- subset(Taxonomy_all, is.na(Taxonomy_all$Family) == TRUE &
                      ! Taxonomy_all$ASV %in% NAorder$ASV)
 
 
-
 # get ASVs that were not classified to genus level
 NAgenus <- subset(Taxonomy_all, is.na(Taxonomy_all$Genus) == TRUE & 
                     ! Taxonomy_all$ASV %in% NAkingdom$ASV &
@@ -226,7 +220,6 @@ NAgenus <- subset(Taxonomy_all, is.na(Taxonomy_all$Genus) == TRUE &
                     ! Taxonomy_all$ASV %in% NAclass$ASV &
                     ! Taxonomy_all$ASV %in% NAorder$ASV &
                     ! Taxonomy_all$ASV %in% NAfamily$ASV)
-
 
 
 # get ASV that were classified to genus level
@@ -304,6 +297,7 @@ DWDS_top_abundance$Other <- 1 - rowSums(DWDS_top_abundance)
 # make sample name column
 DWDS_top_abundance$Sample_name <- rownames(DWDS_top_abundance)
 
+
 # melt
 Top_genera.m <- melt(DWDS_top_abundance, variable.name = "Genus", value.name = "Relabun")
 
@@ -343,6 +337,10 @@ bars <-
 bars
 
 #ggsave("./Plots/stackedbars.pdf", plot = bars, device = "pdf", width = 5, height = 2.5, units = "in")
+
+
+# save data frame
+#write.csv(DWDS_top_abundance, "./RData/DWDS_top20_relabun.csv")
 
 
 
@@ -568,27 +566,61 @@ DWDS_top_taxa <- data.frame(DWDS_top_object@tax_table@.Data)
 colnames(DWDS_top_abundance) <- DWDS_top_taxa$Genus
 
 
-# stat
-genera.cor <- cor(DWDS_top_abundance, method = "spearman")
+# loop and get rho and p values for each top 20 genus
+rho.dm = matrix(NA, 20, 20)
+p.dm = matrix(NA, 20, 20)
+
+rownames(rho.dm) <- colnames(DWDS_top_abundance)
+colnames(rho.dm) <- colnames(DWDS_top_abundance)
+rownames(p.dm) <- colnames(DWDS_top_abundance)
+colnames(p.dm) <- colnames(DWDS_top_abundance)
+
+for(var1 in colnames(DWDS_top_abundance)){
+  for(var2 in colnames(DWDS_top_abundance)){
+    rho.dm[var1,var2] <- cor.test(DWDS_top_abundance[[var1]], DWDS_top_abundance[[var2]],
+                                  method = "spearman")$estimate
+    p.dm[var1,var2] <- cor.test(DWDS_top_abundance[[var1]], DWDS_top_abundance[[var2]],
+                                method = "spearman")$p.value
+  }
+}
 
 
-# get ready for plotting
-genera.cor.m <- melt(genera.cor, value.name = "rho")
-genera.cor.m <- genera.cor.m[genera.cor.m$rho < 1,]
-genera.cor.m <- genera.cor.m[ ! duplicated(genera.cor.m$rho),]
+# melt
+rho.m <- melt(data.frame(Var1 = rownames(rho.dm), rho.dm), variable.name = "Var2", value.name = "rho")
+p.m <- melt(data.frame(Var1 = rownames(p.dm), p.dm), variable.name = "Var2", value.name = "p")
 
+
+# combine
+rho.results <- cbind(rho.m, p = p.m[,3])
+
+
+# now get rid of duplicates
+rho.results <- subset(rho.results, rho < 0.99)
+rho.results <- rho.results[ ! duplicated(rho.results$rho),]
+
+
+# great! now sub the . for : and -
+rho.results$Var2 <- sub("\\.", ":", rho.results$Var2)
+rho.results[grep("Burkholderia", rho.results$Var2), "Var2"] <- "Genus:Burkholderia-Caballeronia-Paraburkholderia"
+
+
+# save
+#write.csv(rho.results, "./RData/Genus_corr_results.csv", row.names = FALSE)
 
 
 ### figure S7 ###
 rho2 <-
-  ggplot(genera.cor.m, aes(y = Var2, x = Var1, fill = rho)) +
+  ggplot(rho.results, aes(y = Var2, x = Var1, fill = rho)) +
   geom_tile() +
-  scale_fill_gradientn(values = scales::rescale(c(min(genera.cor.m$rho), -0.3, 0, 0.3, max(genera.cor.m$rho))),
+  scale_fill_gradientn(values = scales::rescale(c(min(rho.results$rho), -0.3, 0, 0.3, max(rho.results$rho))),
                        colors = c(brewer.pal(5, "Spectral")[1:2], "white", brewer.pal(5, "Spectral")[4:5]),
                        breaks = c(-0.76, -0.35, 0.0, 0.45, 0.93)) +
+  geom_text(data = subset(rho.results, p < 0.05), 
+            aes(label = round(rho, 2)), size = 1.5, color = "white") +
   theme_classic() +
-  scale_y_discrete(position = "right") +
-  theme(axis.text.x = element_text(size = 6, color = "black", angle = 90, hjust = 1, face = "italic"),
+  scale_y_discrete(position = "right", limits = as.character(colnames(DWDS_top_abundance))[-20]) +
+  scale_x_discrete(limits = as.character(colnames(DWDS_top_abundance))[-1]) +
+  theme(axis.text.x = element_text(size = 5, color = "black", angle = 90, hjust = 1, face = "italic"),
         axis.text.y = element_text(size = 5, color = "black", face = "italic"),
         axis.title.y = element_blank(),
         axis.title.x = element_blank(),
@@ -614,27 +646,67 @@ rho2
 
 # stat
 identical(rownames(DWDS_top_abundance), rownames(Sample_info))
-ARG.cor <- cbind(DWDS_top_abundance[1:15], Sample_info[10:15])
-ARG.cor <- cor(ARG.cor, method = "spearman")
+ARG_cor_data <- cbind(DWDS_top_abundance, Sample_info[10:15])
 
 
-# get ready for plotting
-ARG.cor.m <- melt(ARG.cor, value.name = "rho")
-ARG.cor.m <- subset(ARG.cor.m, Var1 %in% colnames(DWDS_top_abundance[1:15]) &
-                      Var2 %in% colnames(Sample_info[10:15]))
 
+# loop and get rho and p values for each top 20 genus
+ARG_rho.dm = matrix(NA, 26, 26)
+ARG_p.dm = matrix(NA, 26, 26)
+
+rownames(ARG_rho.dm) <- colnames(ARG_cor_data)
+colnames(ARG_rho.dm) <- colnames(ARG_cor_data)
+rownames(ARG_p.dm) <- colnames(ARG_cor_data)
+colnames(ARG_p.dm) <- colnames(ARG_cor_data)
+
+for(var1 in colnames(ARG_cor_data)){
+  for(var2 in colnames(ARG_cor_data)){
+    ARG_rho.dm[var1,var2] <- cor.test(ARG_cor_data[[var1]], ARG_cor_data[[var2]],
+                                  method = "spearman")$estimate
+    ARG_p.dm[var1,var2] <- cor.test(ARG_cor_data[[var1]], ARG_cor_data[[var2]],
+                                method = "spearman")$p.value
+  }
+}
+
+
+# melt
+ARG_rho.m <- melt(data.frame(Var1 = rownames(ARG_rho.dm), ARG_rho.dm), variable.name = "Var2", value.name = "rho")
+ARG_p.m <- melt(data.frame(Var1 = rownames(ARG_p.dm), ARG_p.dm), variable.name = "Var2", value.name = "p")
+
+
+# combine
+ARG_rho.results <- cbind(ARG_rho.m, p = ARG_p.m[,3])
+
+
+# only want comparisons of genus ~ ARG
+ARG_rho.results <- ARG_rho.results[grepl("copies", ARG_rho.results$Var1),]
+ARG_rho.results <- ARG_rho.results[! grepl("copies", ARG_rho.results$Var2),]
+ARG_rho.results$Var1 <- droplevels(ARG_rho.results$Var1)
+ARG_rho.results$Var2 <- droplevels(ARG_rho.results$Var2)
+
+
+# now get rid of duplicates
+ARG_rho.results <- subset(ARG_rho.results, rho < 1)
+ARG_rho.results <- ARG_rho.results[ ! duplicated(ARG_rho.results$rho),]
+
+
+# great! now sub the . for : and -
+ARG_rho.results$Var2 <- sub("\\.", ":", ARG_rho.results$Var2)
+ARG_rho.results[grep("Burkholderia", ARG_rho.results$Var2), "Var2"] <- "Genus:Burkholderia-Caballeronia-Paraburkholderia"
 
 
 ### figure S8 ###
 rho3 <-
-  ggplot(ARG.cor.m, aes(y = Var2, x = Var1, fill = rho)) +
+  ggplot(ARG_rho.results, aes(y = Var1, x = Var2, fill = rho)) +
   geom_tile() +
-  scale_fill_gradientn(values = scales::rescale(c(min(ARG.cor.m$rho), -0.3, 0, 0.3, max(ARG.cor.m$rho))),
+  scale_fill_gradientn(values = scales::rescale(c(min(ARG_rho.results$rho), -0.3, 0, 0.3, max(ARG_rho.results$rho))),
                        colors = c(brewer.pal(5, "Spectral")[1:2], "white", brewer.pal(5, "Spectral")[4:5]),
                        breaks = c(-0.54, -0.25, 0.0, 0.25, 0.51)) +
+  geom_text(data = subset(ARG_rho.results, p < 0.05), 
+            aes(label = round(rho, 2)), size = 1.5, color = "white") +
   theme_classic() +
   scale_y_discrete(position = "right", labels = rev(c("sul1", "intI1", "czcD", "copA", "blaTEM", "blaSHV"))) +
-  theme(axis.text.x = element_text(size = 6, color = "black", angle = 90, hjust = 1, face = "italic"),
+  theme(axis.text.x = element_text(size = 5, color = "black", angle = 90, hjust = 1, face = "italic"),
         axis.text.y = element_text(size = 5, color = "black", face = "italic"),
         axis.title.y = element_blank(),
         axis.title.x = element_blank(),
@@ -649,5 +721,116 @@ rho3 <-
   labs(y = "Genus correlations")
 rho3
 
-#ggsave("./Plots/rho3.pdf", plot = rho3, device = "pdf", width = 4, height = 3, units = "in")
+#ggsave("./Plots/rho3.pdf", plot = rho3, device = "pdf", width = 5, height = 3, units = "in")
+
+
+
+
+####################
+### indicspecies ###
+####################
+
+# add taxa names
+indic_data <- data.frame(ASV = colnames(DWDS_relabun), t(DWDS_relabun))
+indic_data <- merge(lowest_class.df, indic_data, by = "ASV")
+rownames(indic_data) <- paste0(indic_data$ASV, "__", indic_data$Tax)
+indic_data <- t(indic_data[-c(1:2)])
+
+
+# indicpsecies analysis
+Sample_info <- Sample_info[order(rownames(Sample_info)),]
+identical(rownames(indic_data), rownames(Sample_info))
+DWDS_indic <- multipatt(indic_data, as.vector(Sample_info$Sample_type), control = how(nperm = 999))
+summary(DWDS_indic, indvalcomp = TRUE)
+# copy and pasted into excel
+
+
+
+
+#####################################
+### explain community composition ###
+#####################################
+
+# subset only relevant sample info, including if something is a tubercle or not
+variables <- Sample_info[, c("Sample_type", "Pipe_location", "Distance_into_pipe", "X16S_copies")]
+identical(rownames(indic_data), rownames(variables))
+variables$Tubercle <- FALSE
+variables$Tubercle[variables$Sample_type == "Tubercle"] <- TRUE
+
+
+# environmental fit
+DWDS.cca <- cca(indic_data ~ ., variables, na.action = na.exclude)
+DWDS.fit <- envfit(DWDS.cca, variables, permu = 999, na.rm = TRUE)
+DWDS.fit
+
+#                CCA1    CCA2     r2 Pr(>r)  
+# X16S_copies 0.88300 0.46937 0.2468  0.042 *
+
+#                        r2 Pr(>r)    
+# Sample_type        0.3243  0.009 ** 
+# Pipe_location      0.1058  0.096 .  
+# Distance_into_pipe 0.3596  0.001 ***
+# Tubercle           0.2811  0.002 ** 
+
+
+
+
+#################
+### questions ###
+#################
+
+# how many ASVs belonged mycobacterium?
+nrow(subset(Taxonomy_all, Genus == "Mycobacterium")) / nrow(Taxonomy_all) * 100
+# [1] 22 / 2024 = 1.086957 %
+
+
+# how many reads belong to mycobacterium?
+sum(subset_taxa(DWDS_object, Genus == "Mycobacterium")@otu_table@.Data) /
+  sum(DWDS_object@otu_table@.Data) * 100
+# [1] 32.00618 %
+
+
+# how many genera were there across the dataset?
+DWDS_tax_glom # combined to lowest possible classification
+# 701 taxa
+length(unique(Taxonomy_all$Genus)) # genus only
+# [1] 469
+
+
+# How many were assigned to the “core” community?
+# (using frequency) -
+data.frame(table(Freq$freq))
+
+
+# compare envfit results PERMANOVA
+identical(rownames(indic_data), rownames(Sample_info))
+type.adonis <- adonis(indic_data ~ Sample_info$Sample_type, method = "bray", perm = 999)
+type.adonis # 0.029 *
+DWDS.fit # 0.001 ***
+
+loc.adonis <- adonis(indic_data ~ Sample_info$Pipe_location, method = "bray", perm = 999)
+loc.adonis # 0.712
+DWDS.fit # 0.010 **
+
+dist.adonis <- adonis(indic_data ~ Sample_info$Distance_into_pipe, method = "bray", perm = 999)
+dist.adonis # 0.471
+DWDS.fit # 0.017 *
+
+tub.adonis <- adonis(indic_data ~ variables$Tubercle, method = "bray", perm = 999)
+tub.adonis # 0.004 **
+DWDS.fit # 0.001 ***
+
+
+# compare envfit results PERMANOVA
+type.ano <- anosim(indic_data, Sample_info$Sample_type, distance = "bray", perm = 9999)
+type.ano # 0.0275
+
+loc.ano <- anosim(indic_data, Sample_info$Pipe_location, distance = "bray", perm = 9999)
+loc.ano # 0.4746 
+
+dist.ano <- anosim(indic_data, Sample_info$Distance_into_pipe, distance = "bray", perm = 9999)
+dist.ano # 0.4356
+
+tub.ano <- anosim(indic_data, variables$Tubercle, distance = "bray", perm = 9999)
+tub.ano # 0.0174
 
