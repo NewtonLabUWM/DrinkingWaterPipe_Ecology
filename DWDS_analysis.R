@@ -17,7 +17,6 @@ library(reshape2)
 library(ape)
 library(ggrepel)
 library(indicspecies)
-library(ggbeeswarm)
 
 
 # load phyloseq object (see DWDS_dada2.R from 3/26/20)
@@ -522,13 +521,20 @@ glm
 
 
 
+
+
 ### figure 5 ###
-means <- aggregate(rho ~ freq, mean, data = ARG.cor.m)
+nbox <- data.frame(data.frame(table(Freq$freq))[-1,], aggregate(. ~ as.factor(freq), median, data = ARG.cor.m[3:4])[2])
+colnames(nbox) <- c("freq", "ntax", "median")
+#nbox$ntax <- paste0("n=", nbox$ntax)
 
 rho <-
   ggplot(ARG.cor.m, aes(x = as.factor(freq), y = rho)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey80", size = 0.2) +
-  geom_quasirandom(size = 0.3, width = 0.1, alpha = 0.5, color = "grey30") +
+  geom_boxplot(size = 0.25, width = 0.25, outlier.size = 0.2, color = "black", fatten = NULL, fill = "grey80") +
+  geom_label(data = nbox, aes(x = as.factor(freq), y = median, label = ntax), 
+             size = 1.5, label.padding = unit(0.15, "lines"), label.size = 0.2, 
+             fill = "white", color = "black") +
   theme_classic() +
   theme(axis.text.x = element_text(size = 5, color = "black"),
         axis.text.y = element_text(size = 5, color = "black"),
@@ -538,12 +544,11 @@ rho <-
         axis.line = element_line(size = 0.25),
         axis.ticks = element_line(size = 0.25),
         panel.border = element_rect(color = "grey80", fill = NA, size = 0.25)) +
-  geom_crossbar(data = means, aes(ymin = rho, ymax = rho), size = 0.2, width = 0.4, color = "black") +
-  labs(x = "Frequency of ASV in dataset\nout of 24 samples", 
+  labs(x = "Frequency of ASV in dataset", 
        y = "Spearman rho score\ncorrelating ASV to ARG abundance")
 rho
 
-#ggsave("./Plots/rho.pdf", plot = rho, device = "pdf", width = 5, height = 3.5, units = "in")
+ggsave("./Plots/rho.pdf", plot = rho, device = "pdf", width = 5, height = 3.5, units = "in")
 
 
 
@@ -833,4 +838,6 @@ dist.ano # 0.4356
 
 tub.ano <- anosim(indic_data, variables$Tubercle, distance = "bray", perm = 9999)
 tub.ano # 0.0174
+
+
 
