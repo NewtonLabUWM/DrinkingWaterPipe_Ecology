@@ -1,13 +1,14 @@
-##########################################
+#########################################
 ### Analysis for Kimbell et al, 2020
-### Lou LaMartina, finalized April 28, 2020
-##########################################
+### Lou LaMartina, finalized June 3, 2020
+#########################################
 
 
 # set working directory
 setwd("~/Desktop/Lab/Projects/Kimbell")
 
 
+# load libraries
 library(phyloseq)
 library(ggplot2)
 library(RColorBrewer)
@@ -101,13 +102,14 @@ t.test(subset(alpha.div, Sample_type == "Scrape")$shannon,
 ### figure 2 ###
 alpha <-
   ggplot(alpha.div, aes(x = Sample_type, y = shannon, color = Sample_type)) +
-  geom_point(size = 1.5) +
-  geom_text_repel(data = alpha.div, size = 1.8, segment.size = 0.25,
+  geom_point(size = 1.2) +
+  geom_text_repel(data = alpha.div, size = 2, segment.size = 0.25,
                   aes(label = Sample_num)) +
   theme_classic() +
   scale_color_manual(values = rev(brewer.pal(4, "Set1"))) +
-  scale_x_discrete(labels = c("Scrape", "Sub-surface\nswab",
-                              "Surface\nswab", "Tubercle")) +
+  scale_x_discrete(labels = c("PS", "UT",
+                              "BS", "TUB")) +
+  ylim(0,5) +
   theme(axis.text.x = element_text(size = 6, color = "black"),
         axis.text.y = element_text(size = 6, color = "black"),
         axis.title.y = element_text(size = 6, color = "black", face = "bold"),
@@ -121,18 +123,19 @@ alpha <-
   labs(y = "Shannon alpha diversity score", x = "Sample type")
 alpha
 
-#ggsave("./Plots/alpha.pdf", plot = alpha, device = "pdf", width = 2.5, height = 2.5, units = "in")
+#ggsave("./Plots/alpha.pdf", plot = alpha, device = "pdf", width = 2, height = 3, units = "in")
 
 
 # save sample information for figure
 #write.csv(Sample_info, "./Plots/plotpoints.csv", row.names = FALSE)
+# the table was made in keynote
 
 
 
 
-##################
-### ordination ###
-##################
+######################
+### beta diversity ###
+######################
 
 # stat
 DWDS.pcoa <- pcoa(vegdist(DWDS_relabun, method = "bray"))
@@ -340,6 +343,7 @@ bars
 
 # save data frame
 #write.csv(DWDS_top_abundance, "./RData/DWDS_top20_relabun.csv")
+# bars combined with pcoa in keynote
 
 
 
@@ -431,7 +435,7 @@ heat.colors <- c(brewer.pal(11, "RdBu")[9], "white", brewer.pal(11, "RdBu")[5:4]
 heat.values <- scales::rescale(c(min(DWDS_relabun.z.df.m$Z), 0, 2, max(DWDS_relabun.z.df.m$Z)))
 
 
-# ggplot
+### figure S6 ### 
 dendro <- 
   ggplot(DWDS_relabun.z.df.m, aes(x = Sample_name, y = Genus, fill = Z)) +
   geom_tile() +
@@ -460,18 +464,18 @@ dendro
 
 
 
-################################
-### determine core community ###
-################################
+###############################################
+### correlations of ARGs to frequent genera ###
+###############################################
 
-# stat
+# test correlations of genera vs ARGs
 Sample_info <- Sample_info[order(rownames(Sample_info)),]
 identical(rownames(DWDS_relabun), rownames(Sample_info))
 ARG.cor <- cbind(DWDS_relabun, Sample_info[10:15])
 ARG.cor <- cor(ARG.cor, method = "spearman")
 
 
-# how do ASV abundances correlate with ARGs?
+# melt
 ARG.cor.m <- melt(ARG.cor, value.name = "rho")
 
 
@@ -499,7 +503,6 @@ summary(glm(freq ~ rho, family = "poisson", data = ARG.cor.m))
 # p = < 2e-16 ***
 
 
-
 glm <- 
   ggplot(ARG.cor.m, aes(x = freq, y = rho)) +
   geom_smooth(formula = rho ~ freq, color = "black", fill = "grey90", size = 0.3) +
@@ -521,12 +524,9 @@ glm
 
 
 
-
-
 ### figure 5 ###
 nbox <- data.frame(data.frame(table(Freq$freq))[-1,], aggregate(. ~ as.factor(freq), median, data = ARG.cor.m[3:4])[2])
 colnames(nbox) <- c("freq", "ntax", "median")
-#nbox$ntax <- paste0("n=", nbox$ntax)
 
 rho <-
   ggplot(ARG.cor.m, aes(x = as.factor(freq), y = rho)) +
@@ -548,7 +548,7 @@ rho <-
        y = "Spearman rho score\ncorrelating ASV to ARG abundance")
 rho
 
-ggsave("./Plots/rho.pdf", plot = rho, device = "pdf", width = 5, height = 3.5, units = "in")
+#ggsave("./Plots/rho.pdf", plot = rho, device = "pdf", width = 5, height = 3.5, units = "in")
 
 
 
@@ -652,7 +652,6 @@ rho2
 # stat
 identical(rownames(DWDS_top_abundance), rownames(Sample_info))
 ARG_cor_data <- cbind(DWDS_top_abundance, Sample_info[10:15])
-
 
 
 # loop and get rho and p values for each top 20 genus
@@ -802,9 +801,44 @@ length(unique(Taxonomy_all$Genus)) # genus only
 # [1] 469
 
 
+# how many phyla?
+length(unique(Taxonomy_all$Phylum)) # genus only
+# [1] 47
+
+
+# how many weren't classified to phylum level?
+length(which(is.na(Taxonomy_all$Phylum)))
+# [1] 38 out of 2024
+
+
+
 # How many were assigned to the “core” community?
 # (using frequency) -
 data.frame(table(Freq$freq))
+
+# Var1 Freq
+# 1     1 1634
+# 2     2  173
+# 3     3   89
+# 4     4   28
+# 5     5   18
+# 6     6   13
+# 7     7   12
+# 8     8    6
+# 9     9    5
+# 10   10    7
+# 11   11    2
+# 12   12    8
+# 13   13    3
+# 14   14    2
+# 15   15    3
+# 16   17    1
+# 17   18    2
+# 18   19    4
+# 19   20    1
+# 20   21    1
+# 21   22    1
+# 22   24    2
 
 
 # compare envfit results PERMANOVA
@@ -838,6 +872,4 @@ dist.ano # 0.4356
 
 tub.ano <- anosim(indic_data, variables$Tubercle, distance = "bray", perm = 9999)
 tub.ano # 0.0174
-
-
 
