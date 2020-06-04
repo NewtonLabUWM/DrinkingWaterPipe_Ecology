@@ -7,7 +7,7 @@
 # PURPOSE
 # Sequence V4 regions of 16S rRNA genes of microbial
 # communities from a decommissioned pipe from a 
-# drinking water distributions system (DWDS).
+# drinking water distribution system (DWDS).
 
 # PCR amplicons from DW pipe were sequenced on 
 # Illumina MiSeq. Samples from an anerobic digester
@@ -67,7 +67,8 @@ Sample_names <- sapply(strsplit(basename(fastqFs), "_"), '[', 1)
 
 
 # remove "MKE-" from sample names
-Sample_names[grepl("MKE", Sample_names) == TRUE] <- sapply(strsplit(Sample_names[grepl("MKE", Sample_names) == TRUE], "-"), '[', 2)
+Sample_names[grepl("MKE", Sample_names) == TRUE] <- 
+  sapply(strsplit(Sample_names[grepl("MKE", Sample_names) == TRUE], "-"), '[', 2)
 
 
 
@@ -359,8 +360,8 @@ length(NTC_ASVs)
 # calculate the mean abundance of NTC ASVs in the dataset (rounded up),
 # turn into a data frame
 NTC_ASVs <- data.frame(NTC_abund = NTC_ASVs, 
-                   data_mean = ceiling(colMeans(Sequence_table_nomock[-25, colnames(Sequence_table_nomock) %in% names(NTC_ASVs)])))
-
+                   data_mean = ceiling(colMeans(Sequence_table_nomock[-25, colnames(Sequence_table_nomock) 
+                                                                      %in% names(NTC_ASVs)])))
 
 # ASV mean ≥ 3*NTC = keep
 # ASV mean < 3*NTC = contaminant
@@ -378,7 +379,8 @@ NTC_ASVs <- merge(NTC_ASVs, Taxonomy_all, by = "FASTA")
 
 # remove them
 NTC_ASVs <- subset(NTC_ASVs, Contaminant == TRUE)
-Sequence_table_nomockNTC <- Sequence_table_nomock[, ! colnames(Sequence_table_nomock) %in% NTC_ASVs$FASTA]
+Sequence_table_nomockNTC <- Sequence_table_nomock[, ! colnames(Sequence_table_nomock) 
+                                                  %in% NTC_ASVs$FASTA]
 
 
 ncol(Sequence_table_nomock)
@@ -423,7 +425,8 @@ mito_ASVs <- subset(Taxonomy_all, FASTA %in% mito_ASVs)
 mito_ASVs$Source <- "Mitochondria"
 
 Contaminants <- rbind(NTC_ASVs[c(5:10,1,11)], Mock_ASVs, euk_ASVs, chloro_ASVs, mito_ASVs)
-Data_means <- data.frame(Data_mean = ceiling(colMeans(Sequence_table_nochim[,colnames(Sequence_table_nochim) %in% Contaminants$FASTA])))
+Data_means <- data.frame(Data_mean = ceiling(colMeans(Sequence_table_nochim[,colnames(Sequence_table_nochim) 
+                                                                            %in% Contaminants$FASTA])))
 Data_means$FASTA <- rownames(Data_means)
 Contaminants <- merge(Data_means, Contaminants, by = "FASTA")
 
