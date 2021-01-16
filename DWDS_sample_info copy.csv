@@ -1,0 +1,25 @@
+Sample_name,Sample_ID,Sample_location,Pipe_type,Pipe_size,Sample_type,Pipe_location,Distance_into_pipe,16S_copies,blaSHV_copies,blaTEM_copies,copA_copies,czcD_copies,intI1_copies,sul1_copies
+P10,BS_T1,Milwaukee,Cast_iron,18 in,Surface_swab,Top,18 in,4.97,4.54,4.25,2.52,3.6,4.39,4.25
+P11,PS_T1,Milwaukee,Cast_iron,18 in,Scrape,Top,18 in,5.44,4.69,4.51,2.52,3.53,2.54,3.6
+P12,UT_T1,Milwaukee,Cast_iron,18 in,Sub_surface_swab,Top,18 in,5.08,4.4,4.11,2.52,2.97,3.93,3.72
+P13,BS_B1,Milwaukee,Cast_iron,18 in,Surface_swab,Bottom,24 in,5.94,4.27,4.36,3.1,2.33,2.54,4.49
+P14,PS_B1,Milwaukee,Cast_iron,18 in,Scrape,Bottom,24 in,6.57,4.68,5.23,3.16,2.33,2.54,4.41
+P15,UT_B1,Milwaukee,Cast_iron,18 in,Sub_surface_swab,Bottom,24 in,6.18,4.52,4.68,2.52,4.25,2.54,2.38
+P17,PS_T2,Milwaukee,Cast_iron,18 in,Scrape,Top,24 in,4.68,4.41,4.22,2.52,2.92,4.6,3.79
+P18,UT_T2,Milwaukee,Cast_iron,18 in,Sub_surface_swab,Top,24 in,5.06,4.5,5.51,2.52,2.92,4.54,3.09
+P19,Tub_B1,Milwaukee,Cast_iron,18 in,Tubercle,Bottom,18 in,5.92,4.55,4.2,3.16,2.33,2.54,4.42
+P20,Tub_B2,Milwaukee,Cast_iron,18 in,Tubercle,Bottom,24 in,6.67,4.41,4.78,2.52,3.65,2.54,4.31
+P21,Tub_B3,Milwaukee,Cast_iron,18 in,Tubercle,Bottom,18 in,6.39,4.68,4.82,3.74,3.68,2.54,2.96
+P23,BS_B2,Milwaukee,Cast_iron,18 in,Surface_swab,Bottom,12 in,4.8,4.73,4.15,3.12,4.51,4.63,2.38
+P26,BS_T2,Milwaukee,Cast_iron,18 in,Surface_swab,Top,12 in,4.76,4.37,4.22,2.52,4.45,4.36,3.04
+P27,PS_T3,Milwaukee,Cast_iron,18 in,Scrape,Top,12 in,6.3,4.45,4.34,4.46,4.62,4.64,3.78
+P30,PS_B2,Milwaukee,Cast_iron,18 in,Scrape,Bottom,18 in,4.87,4.77,4.13,3.11,3.62,2.54,2.38
+P36,PS_B3,Milwaukee,Cast_iron,18 in,Scrape,Bottom,24 in,5.72,4.59,4.85,3.86,4.21,2.54,4.55
+P3,UT_B2,Milwaukee,Cast_iron,18 in,Sub_surface_swab,Bottom,12 in,4.74,4.22,4.17,2.52,4.21,2.54,4.31
+P44,Tub_T1,Milwaukee,Cast_iron,18 in,Tubercle,Top,12 in,5.45,4.68,4.79,2.52,4.21,2.54,2.38
+P45,Tub_T2,Milwaukee,Cast_iron,18 in,Tubercle,Top,18 in,5.81,4.84,4.75,2.52,4.21,2.54,2.38
+P46,Tub_T3,Milwaukee,Cast_iron,18 in,Tubercle,Top,24 in,6.34,4.5,4.8,3.14,2.97,2.54,2.38
+P4,BS_T3,Milwaukee,Cast_iron,18 in,Surface_swab,Top,12 in,6.93,4.42,4.97,2.52,2.98,2.54,3.54
+P6,UT_T3,Milwaukee,Cast_iron,18 in,Sub_surface_swab,Top,12 in,6.37,4.45,4.53,3.16,3.57,3.11,2.38
+P7,BS_B3,Milwaukee,Cast_iron,18 in,Surface_swab,Bottom,18 in,6.17,4.61,5.06,2.52,4.3,3.75,3.66
+P9,UT_B3,Milwaukee,Cast_iron,18 in,Sub_surface_swab,Bottom,18 in,5.36,4.88,5.26,4.38,2.33,4.62,4.3
