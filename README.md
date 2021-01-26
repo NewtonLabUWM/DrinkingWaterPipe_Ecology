@@ -10,5 +10,5 @@
 <b>Conclusions:</b> The detection of ARGs, MRGs, and class 1 integrons across all sample types within the pipe indicates that pipes themselves can serve as sources for ARGs in DWDS. Consequently, future work should determine the role of pipe material and interactions between corrosion inhibitors and pipe materials to determine how engineering decisions can mitigate ARGs in drinking water that stem from pipe materials. 
 
 
-## FASTQ files (coming soon)
-* [NCBI Short Read Archive](https://ncbi.nlm.nih.gov)
+## FASTQ files
+* [NCBI Sequence Read Archive](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA692495)
