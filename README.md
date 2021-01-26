@@ -12,5 +12,5 @@
 
 ![image](https://github.com/loulanomics/DrinkingWaterPipe_Ecology/blob/master/Data/abstract.png)
 
-## FASTQ files (coming soon)
-* [NCBI Short Read Archive](https://ncbi.nlm.nih.gov)
+## FASTQ files
+* [NCBI Sequence Read Archive](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA692495)
