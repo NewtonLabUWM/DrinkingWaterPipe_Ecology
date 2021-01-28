@@ -11,4 +11,4 @@
 
 
 ## FASTQ files
-* [NCBI Sequence Read Archive](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA692495)
+[NCBI Sequence Read Archive](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA692495)
