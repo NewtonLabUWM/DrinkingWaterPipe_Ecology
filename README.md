@@ -12,5 +12,9 @@
 
 ![image](https://github.com/loulanomics/DrinkingWaterPipe_Ecology/blob/master/Data/abstract.png)
 
+
 ## FASTQ files
-* [NCBI Sequence Read Archive](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA692495)
+
+### NCBI Sequence Read Archive
+
+[PRJNA692495](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA692495): Cast iron drinking water pipe biofilm community analysis
