@@ -11,4 +11,4 @@
 
 
 ## FASTQ files
-[NCBI Sequence Read Archive](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA692495)
+[PRJNA692495](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA692495): Cast iron drinking water pipe biofilm community analysis
