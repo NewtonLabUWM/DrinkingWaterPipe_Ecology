@@ -1,5 +1,7 @@
 # Cast iron drinking water pipe biofilms support diverse microbial communities containing antibiotic resistance genes, metal resistance genes, and class 1 integrons
 ### Lee K. Kimbell, Lou LaMartina, Anthony D. Kappell, Jingwan Huo, Yin Wang, Ryan J. Newton, Patrick J. McNamara
+[Water Research & Technology](https://pubs.rsc.org/en/content/articlelanding/2021/EW/D0EW01059F#!divAbstract), Feb 1, 2021
+
 
 <b>Background:</b> Antimicrobial resistance is a well-documented public health concern. The role that drinking water distribution pipes have as sources of antibiotic resistance genes (ARGs) is not well known. Metals are a known stressor for antibiotic resistance development, implying that aging metal-pipe infrastructure could be a source of ARGs. The objective of this study was to determine if ARGs, metal resistance genes (MRGs), and intI1 were pervasive across various pipe biofilm sample types (biomass surfaces, pipe surfaces, corrosion tubercles, and under corrosion tubercles) and if the resistance genes associated with particular microbial taxa. 
 
